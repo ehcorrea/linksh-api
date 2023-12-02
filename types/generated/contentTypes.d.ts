@@ -362,6 +362,59 @@ export interface AdminTransferTokenPermission extends Schema.CollectionType {
   };
 }
 
+export interface ApiLinkshLinksh extends Schema.CollectionType {
+  collectionName: 'linkshes';
+  info: {
+    singularName: 'linksh';
+    pluralName: 'linkshes';
+    displayName: 'linksh';
+    description: '';
+  };
+  options: {
+    draftAndPublish: true;
+  };
+  attributes: {
+    title: Attribute.String &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 5;
+      }>;
+    content: Attribute.RichText &
+      Attribute.Required &
+      Attribute.SetMinMaxLength<{
+        minLength: 5;
+      }>;
+    timeout: Attribute.DateTime & Attribute.Required;
+    showContent: Attribute.Boolean &
+      Attribute.Required &
+      Attribute.DefaultTo<false>;
+    isDeleted: Attribute.Boolean &
+      Attribute.Required &
+      Attribute.DefaultTo<false>;
+    linkshId: Attribute.UID & Attribute.Required;
+    owned_by: Attribute.Relation<
+      'api::linksh.linksh',
+      'manyToOne',
+      'plugin::users-permissions.user'
+    >;
+    createdAt: Attribute.DateTime;
+    updatedAt: Attribute.DateTime;
+    publishedAt: Attribute.DateTime;
+    createdBy: Attribute.Relation<
+      'api::linksh.linksh',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+    updatedBy: Attribute.Relation<
+      'api::linksh.linksh',
+      'oneToOne',
+      'admin::user'
+    > &
+      Attribute.Private;
+  };
+}
+
 export interface PluginUploadFile extends Schema.CollectionType {
   collectionName: 'files';
   info: {
@@ -616,6 +669,11 @@ export interface PluginUsersPermissionsUser extends Schema.CollectionType {
       'manyToOne',
       'plugin::users-permissions.role'
     >;
+    linkshes: Attribute.Relation<
+      'plugin::users-permissions.user',
+      'oneToMany',
+      'api::linksh.linksh'
+    >;
     createdAt: Attribute.DateTime;
     updatedAt: Attribute.DateTime;
     createdBy: Attribute.Relation<
@@ -687,6 +745,7 @@ declare module '@strapi/types' {
       'admin::api-token-permission': AdminApiTokenPermission;
       'admin::transfer-token': AdminTransferToken;
       'admin::transfer-token-permission': AdminTransferTokenPermission;
+      'api::linksh.linksh': ApiLinkshLinksh;
       'plugin::upload.file': PluginUploadFile;
       'plugin::upload.folder': PluginUploadFolder;
       'plugin::users-permissions.permission': PluginUsersPermissionsPermission;
