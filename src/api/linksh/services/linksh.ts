@@ -6,8 +6,7 @@ import { errors } from '@strapi/utils';
 import { factories } from '@strapi/strapi';
 import { v4 } from 'uuid';
 
-import { LinkshCreateRequest } from '../../../../types/linksh';
-import { User } from '../../../../types/user';
+import { LinkshCreateRequest, User } from '@/types';
 
 const { ApplicationError } = errors;
 
@@ -36,8 +35,6 @@ export default factories.createCoreService('api::linksh.linksh', () => ({
       ownedBy: username
     };
 
-
     return await super.create({ data: newLinksh });
-
   }
 }));
