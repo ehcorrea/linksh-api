@@ -1,0 +1,55 @@
+{
+  "kind": "collectionType",
+  "collectionName": "linkshes",
+  "info": {
+    "singularName": "linksh",
+    "pluralName": "linkshes",
+    "displayName": "linksh",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "title": {
+      "type": "string",
+      "required": true,
+      "minLength": 5
+    },
+    "content": {
+      "type": "richtext",
+      "required": true,
+      "minLength": 5
+    },
+    "timeout": {
+      "type": "datetime",
+      "required": true
+    },
+    "showContent": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "isDeleted": {
+      "type": "boolean",
+      "default": false,
+      "required": true
+    },
+    "linkshId": {
+      "type": "uid",
+      "required": true,
+      "targetField": "ownedBy",
+      "minLength": 10
+    },
+    "owner": {
+      "type": "relation",
+      "relation": "manyToOne",
+      "target": "plugin::users-permissions.user",
+      "inversedBy": "linkshes"
+    },
+    "ownedBy": {
+      "type": "string"
+    }
+  }
+}
