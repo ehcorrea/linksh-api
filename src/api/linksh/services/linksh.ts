@@ -13,9 +13,9 @@ const { ApplicationError } = errors;
 
 export default factories.createCoreService('api::linksh.linksh', () => ({
 
-  async create(args) {
+  async create(args: LinkshCreateRequest) {
 
-    const { data: { title, content, timeout }, }: LinkshCreateRequest = args
+    const { data: { title, content, timeout } } = args;
 
     const actualDateISOString = new Date().toISOString();
     const timeoutDateISOString = new Date(timeout).toISOString();
@@ -37,7 +37,7 @@ export default factories.createCoreService('api::linksh.linksh', () => ({
     };
 
 
-    return await super.create({ data: newLinksh })
+    return await super.create({ data: newLinksh });
 
   }
 }));
