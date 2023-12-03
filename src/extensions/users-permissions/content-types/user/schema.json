@@ -70,7 +70,7 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::linksh.linksh",
-      "mappedBy": "owned_by"
+      "mappedBy": "owner"
     }
   }
 }

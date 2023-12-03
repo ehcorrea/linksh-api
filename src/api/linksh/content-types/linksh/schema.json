@@ -38,13 +38,18 @@
     },
     "linkshId": {
       "type": "uid",
-      "required": true
+      "required": true,
+      "targetField": "ownedBy",
+      "minLength": 10
     },
-    "owned_by": {
+    "owner": {
       "type": "relation",
       "relation": "manyToOne",
       "target": "plugin::users-permissions.user",
       "inversedBy": "linkshes"
+    },
+    "ownedBy": {
+      "type": "string"
     }
   }
 }
