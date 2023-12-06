@@ -6,11 +6,11 @@ import { errors } from '@strapi/utils';
 import { factories } from '@strapi/strapi';
 import { v4 } from 'uuid';
 
-import { LinkshCreateRequest, User } from '@/types';
+import { LinkshCreateRequest, User, FindQuery, Linksh } from '@/types';
 
-const { ApplicationError } = errors;
+const { ApplicationError, ForbiddenError } = errors;
 
-export default factories.createCoreService('api::linksh.linksh', () => ({
+export default factories.createCoreService('api::linksh.linksh', ({ strapi }) => ({
 
   async create(args: LinkshCreateRequest) {
 
@@ -35,6 +35,34 @@ export default factories.createCoreService('api::linksh.linksh', () => ({
       ownedBy: username
     };
 
-    return await super.create({ data: newLinksh });
+    return super.create({ data: newLinksh });
+  },
+
+  async find(query: FindQuery) {
+
+    return super.find({
+      fields: ["title", "ownedBy", "id"],
+      filters:
+      {
+        $and: [
+          {
+            title: { $contains: query.title || "" },
+            ownedBy: { $contains: query.ownedBy || "" },
+            isDeleted: false,
+          },
+        ],
+      },
+    });
+  },
+
+  async delete(id: number) {
+    const { username } = strapi.requestContext.get().state.user as User;
+    const linksh = await super.findOne(id) as Linksh;
+
+    if (!linksh || linksh.ownedBy !== username) {
+      throw new ForbiddenError();
+    }
+
+    return super.update(id, { data: { ...linksh, isDeleted: true } });
   }
 }));
