@@ -51,8 +51,6 @@ export default factories.createCoreService('api::linksh.linksh', ({ strapi }) =>
           },
         ],
       },
-    })
-
+    });
   }
-
 }));
