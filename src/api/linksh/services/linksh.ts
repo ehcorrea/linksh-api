@@ -8,7 +8,7 @@ import { v4 } from 'uuid';
 
 import { LinkshCreateRequest, User, FindQuery, Linksh } from '@/types';
 
-const { ApplicationError, ForbiddenError } = errors;
+const { ApplicationError, ForbiddenError, NotFoundError } = errors;
 
 export default factories.createCoreService('api::linksh.linksh', ({ strapi }) => ({
 
@@ -55,14 +55,65 @@ export default factories.createCoreService('api::linksh.linksh', ({ strapi }) =>
     });
   },
 
-  async delete(id: number) {
+  async delete(id: string) {
     const { username } = strapi.requestContext.get().state.user as User;
     const linksh = await super.findOne(id) as Linksh;
 
-    if (!linksh || linksh.ownedBy !== username) {
-      throw new ForbiddenError();
+    if (!linksh || linksh.ownedBy !== username || linksh.isDeleted) {
+      throw new NotFoundError("Content not found");
     }
 
-    return super.update(id, { data: { ...linksh, isDeleted: true } });
-  }
+    await super.update(id, { data: { ...linksh, isDeleted: true } });
+
+    return strapi.requestContext.get().send({ message: "Content deleted successfully" }, 200)
+  },
+
+
+  async findOne(id: string) {
+    const user = strapi.requestContext.get().state.user as User;
+    const linksh = await super.findOne(id) as Linksh;
+
+    if (linksh.isDeleted) {
+      throw new NotFoundError("Content not found");
+    }
+
+    if (linksh.ownedBy === user?.username) {
+      return strapi.requestContext.get().send({
+        data:
+        {
+          title: linksh.title,
+          content: linksh.content,
+          timeout: linksh.timeout,
+          linkshId: linksh.linkshId,
+          ownedBy: linksh.ownedBy,
+        }
+      }, 200);
+    }
+
+    const actualDateISOString = new Date().toISOString();
+    const timeoutDateISOString = new Date(linksh.timeout).toISOString();
+
+    if (actualDateISOString >= timeoutDateISOString) {
+      return strapi.requestContext.get().send({
+        data: {
+          title: linksh.title,
+          timeout: linksh.timeout,
+          content: linksh.content,
+          linkshId: linksh.linkshId,
+          ownedBy: linksh.ownedBy,
+        }
+      }, 200)
+    }
+
+    return strapi.requestContext.get().send({
+      data: {
+        title: linksh.title,
+        timeout: linksh.timeout,
+        content: "Content not available yet",
+        linkshId: linksh.linkshId,
+        ownedBy: linksh.ownedBy,
+      }
+    }, 200)
+
+  },
 }));
