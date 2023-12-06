@@ -26,11 +26,6 @@
       "type": "datetime",
       "required": true
     },
-    "showContent": {
-      "type": "boolean",
-      "default": false,
-      "required": true
-    },
     "isDeleted": {
       "type": "boolean",
       "default": false,

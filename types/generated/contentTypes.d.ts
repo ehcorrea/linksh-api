@@ -385,9 +385,6 @@ export interface ApiLinkshLinksh extends Schema.CollectionType {
         minLength: 5;
       }>;
     timeout: Attribute.DateTime & Attribute.Required;
-    showContent: Attribute.Boolean &
-      Attribute.Required &
-      Attribute.DefaultTo<false>;
     isDeleted: Attribute.Boolean &
       Attribute.Required &
       Attribute.DefaultTo<false>;
