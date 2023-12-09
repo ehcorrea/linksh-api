@@ -9,5 +9,9 @@ export type Linksh = {
 
 export type LinkshCreateRequest = {
   data: Pick<Linksh, "title" | "content" | "timeout">
-
 }
+
+export type LinkshUpdateRequest = {
+  data: Pick<Linksh, "title" | "content" | "timeout">
+}
+

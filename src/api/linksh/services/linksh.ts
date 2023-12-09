@@ -6,9 +6,9 @@ import { errors } from '@strapi/utils';
 import { factories } from '@strapi/strapi';
 import { v4 } from 'uuid';
 
-import { LinkshCreateRequest, User, FindQuery, Linksh } from '@/types';
+import { LinkshCreateRequest, LinkshUpdateRequest, User, FindQuery, Linksh } from '@/types';
 
-const { ApplicationError, ForbiddenError, NotFoundError } = errors;
+const { ApplicationError, NotFoundError } = errors;
 
 export default factories.createCoreService('api::linksh.linksh', ({ strapi }) => ({
 
@@ -39,6 +39,8 @@ export default factories.createCoreService('api::linksh.linksh', ({ strapi }) =>
   },
 
   async find(query: FindQuery) {
+
+    return super.find(query)
 
     return super.find({
       fields: ["title", "ownedBy", "id"],
@@ -116,4 +118,17 @@ export default factories.createCoreService('api::linksh.linksh', ({ strapi }) =>
     }, 200)
 
   },
-}));
+
+  async update(id: string, params: LinkshUpdateRequest) {
+    const user = strapi.requestContext.get().state.user as User;
+
+
+    const entries = await strapi.db.query('api::linksh.linksh').findOne({
+      where: { owner: user.id, id: { $eq: id } },
+    });
+
+
+    return strapi.requestContext.get().send(entries, 200)
+  },
+}
+));
