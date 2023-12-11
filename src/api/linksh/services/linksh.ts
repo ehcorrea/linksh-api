@@ -6,17 +6,23 @@ import { errors } from "@strapi/utils";
 import { factories } from "@strapi/strapi";
 import { v4 } from "uuid";
 
-import { LinkshCreateRequest, User, FindQuery, Linksh } from "@/types";
+import {
+  LinkshCreateRequest,
+  LinkshUpdateRequest,
+  User,
+  FindQuery,
+  Linksh,
+} from "@/types";
 
 const { ApplicationError, NotFoundError } = errors;
 
 export default factories.createCoreService(
   "api::linksh.linksh",
   ({ strapi }) => ({
-    async create(args: LinkshCreateRequest) {
+    async create(data: LinkshCreateRequest) {
       const {
         data: { title, content, timeout },
-      } = args;
+      } = data;
 
       const actualDateISOString = new Date().toISOString();
       const timeoutDateISOString = new Date(timeout).toISOString();
@@ -60,10 +66,13 @@ export default factories.createCoreService(
     },
 
     async delete(id: string) {
-      const { username } = strapi.requestContext.get().state.user as User;
-      const linksh = (await super.findOne(id)) as Linksh;
+      const { id: userId } = strapi.requestContext.get().state.user as User;
 
-      if (!linksh || linksh.ownedBy !== username || linksh.isDeleted) {
+      const linksh = (await strapi.db.query("api::linksh.linksh").findOne({
+        where: { owner: userId, id: { $eq: id } },
+      })) as Linksh;
+
+      if (!linksh || linksh.isDeleted) {
         throw new NotFoundError("Content not found");
       }
 
@@ -129,14 +138,25 @@ export default factories.createCoreService(
       );
     },
 
-    async update(id: string) {
+    async update(
+      id: string,
+      { data: { title, content } }: LinkshUpdateRequest,
+    ) {
+      if (!title && !content) {
+        throw new ApplicationError("Need a content to be update");
+      }
+
       const user = strapi.requestContext.get().state.user as User;
 
-      const entries = await strapi.db.query("api::linksh.linksh").findOne({
+      const linksh = (await strapi.db.query("api::linksh.linksh").findOne({
         where: { owner: user.id, id: { $eq: id } },
-      });
+      })) as Linksh;
 
-      return strapi.requestContext.get().send(entries, 200);
+      if (!linksh || linksh.isDeleted) {
+        throw new NotFoundError("Content not found");
+      }
+
+      return super.update(id, { data: { ...linksh, title, content } });
     },
   }),
 );
